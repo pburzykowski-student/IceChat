@@ -5,3 +5,7 @@ c++ -o server Chat.o Server.o -L$ICE_HOME/lib -lIce -pthread
 c++ -I. -I$ICE_HOME/include -c Chat.cpp Client.cpp
 c++ -o client Chat.o Client.o -L$ICE_HOME/lib -lIce -pthread
 ./client
+
+
+
+

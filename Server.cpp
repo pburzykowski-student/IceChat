@@ -3,174 +3,112 @@
 using namespace std;
 using namespace Chat;
 
-class RoomI : public Room {
+
+class ServerImpl : public Server{
 private:
- 	string name;
-public:	
-	RoomI(string name);
-	virtual string getName(const ::Ice::Current&);
-	virtual UserList getUsers(const ::Ice::Current&);	
-	virtual void AddUser(const UserPrx& who, const string& password, const ::Ice::Current&);
-	virtual void SendMessage(const UserPrx& who, const string& message, const string& password, const Ice::Current&);
-	virtual void Destroy(const Ice::Current&);
-	virtual void LeaveRoom(const UserPrx& who, const string& password, const Ice::Current&);
-};
-
-
-RoomI::RoomI(string name){
-	this->name = name;
-}
-
-string RoomI::getName(const Ice::Current&){
-	return this->name;
-}
-
-UserList RoomI::getUsers(const ::Ice::Current&){
-	UserList userList;
-	return userList;
-}
-
-
-void RoomI::AddUser(const UserPrx&, const string&, const ::Ice::Current&){
-
-}
-
-
-void RoomI::SendMessage(const UserPrx& who, const string& message, const string& password, const Ice::Current&){
-
-}
-
-void RoomI::Destroy(const Ice::Current&){
-
-}
-
-void RoomI::LeaveRoom(const UserPrx& who, const string& password, const Ice::Current&){
-
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class RoomFactoryI : public RoomFactory{
+    RoomList roomList;
+    UserList userList;
+    Ice::ObjectAdapterPtr adapter;
 public:
-	RoomFactoryI();
-	virtual RoomPrx createRoom(const string& name, const Ice::Current&);
-	virtual RoomList getRooms(const Ice::Current&);
+    ServerImpl(Ice::ObjectAdapterPtr adapter);
+    virtual RoomPrx CreateRoom(const string& name,
+                               const Ice::Current&);
+    virtual RoomList getRooms(const Ice::Current&);
+    virtual RoomPrx FindRoom(const string& name,
+                             const Ice::Current&);
+    virtual void RegisterUser(const string& name,
+                              const string& password,
+                              const Ice::Current&);
+    virtual UserPrx FindUser(const string& userName, const Ice::Current&);
+
+
 };
 
-	RoomFactoryI::RoomFactoryI(){
 
-	}
-	
-	RoomPrx RoomFactoryI::createRoom(const string& name, const Ice::Current&){
-
-	}
-
-	RoomList RoomFactoryI::getRooms(const Ice::Current&){
-
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class UserI : public User{
+class RoomImpl : public Room {
+private:
+    string name;
+    UserList userList;
+    ServerPrx serverPrx;
 public:
-	UserI();
-	virtual void SendMessage(const RoomPrx& where, const UserPrx& who, const string& message, const Ice::Current&);
-	virtual void SendPrivateMessage(const UserPrx& who, const string& message, const Ice::Current&);
-	virtual string getName(const Ice::Current&);
+    RoomImpl(string name, ServerPrx serverPrx);
+    virtual string getName(const ::Ice::Current&);
+    virtual UserList getUsers(const ::Ice::Current&);
+    virtual void AddUser(const UserPrx& user,
+                         const string& password,
+                         const ::Ice::Current&);
+    virtual void SendMessage(const UserPrx& user,
+                             const string& message,
+                             const string& password,
+                             const Ice::Current&);
+    virtual void Destroy(const Ice::Current&);
+    virtual void LeaveRoom(const UserPrx& user,
+                           const string& password,
+                           const Ice::Current&);
 };
 
-	UserI::UserI(){
 
-	}
 
-	void UserI::SendMessage(const RoomPrx& where, const UserPrx& who, const string& message, const Ice::Current&){
-
-	}
-	
-	void UserI::SendPrivateMessage(const UserPrx& who, const string& message, const Ice::Current&){
-
-	}
-
-	string UserI::getName(const Ice::Current&){
-
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class ServerI : public Server{
-
+class UserImpl : public User{
+private:
+    string password;
+    string userName;
 public:
-	ServerI();
-	virtual RoomPrx CreateRoom(const string& name, const Ice::Current&);
-	virtual RoomList getRooms(const Ice::Current&);
-	virtual RoomPrx FindRoom(const string& name, const Ice::Current&);
-	virtual void RegisterUser(const string& name, const string& password, const Ice::Current&); //throw UserAlreadyExists;
-	virtual void ChangePassword(const UserPrx& user, const string& oldpassword, const string& newpassword, const Ice::Current&);
-	virtual void getPassword(const string& user, const Ice::Current&);
-	virtual void RegisterRoomFactory(const RoomFactoryPrx& factory, const Ice::Current&);
-	virtual void UnregisterRoomFactory(const RoomFactoryPrx& factory, const Ice::Current&);
-	
+    UserImpl(const string& userName, const string& password);
+
+    virtual void SendMessage(const RoomPrx& where,
+                             const UserPrx& who,
+                             const string& message,
+                             const Ice::Current&);
+    virtual void SendPrivateMessage(const UserPrx& who,
+                                    const string& message,
+                                    const Ice::Current&);
+    virtual string getName(const Ice::Current&);
+
+    virtual void ChangePassword(const string& oldpassword,
+                                const string& newpassword,
+                                const Ice::Current&);
+    virtual string getPassword(const Ice::Current&);
 };
 
-	ServerI::ServerI(){
-
-	}
-
-	RoomPrx ServerI::CreateRoom(const string& name, const Ice::Current&){
-
-	}
-	
-	RoomList ServerI::getRooms(const Ice::Current&){
-
-	}
-
-	RoomPrx ServerI::FindRoom(const string& name, const Ice::Current&){
-
-	}
-
-	void ServerI::RegisterUser(const string& name, const string& password, const Ice::Current&) {
-
-	}
-
-	void ServerI::ChangePassword(const UserPrx& user, const string& oldpassword, const string& newpassword, const Ice::Current&){
-
-	}
-
-	void ServerI::getPassword(const string& user, const Ice::Current&){
-
-	}
-
-	void ServerI::RegisterRoomFactory(const RoomFactoryPrx& factory, const Ice::Current&){
-
-	}
-	
-	void ServerI::UnregisterRoomFactory(const RoomFactoryPrx& factory, const Ice::Current&){
-
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 int main(int argc, char* argv[]){
-		
-		//Ice::ObjectPtr
-		RoomPtr room = new RoomI("main");
-		RoomFactoryPtr roomFactory = new RoomFactoryI();
-		UserPtr user = new UserI();
-		ServerPtr server = new ServerI();
 
-		int status = 0;
+    //Ice::ObjectPtr
+
+
+    int status = 0;
     Ice::CommunicatorPtr ic;
     try {
         ic = Ice::initialize(argc, argv);
         Ice::ObjectAdapterPtr adapter
-            = ic->createObjectAdapterWithEndpoints(
-                "SimpleChatAdapter", "default -p 10000");
-				
+                = ic->createObjectAdapterWithEndpoints(
+                        "SimpleChatAdapter", "default -p 10000");
+
 
         /*Ice::ObjectPtr object = new ChatI;
         adapter->add(object,
                      ic->stringToIdentity("SimpleChat"));*/
+
+
+        ServerPtr server = new ServerImpl(adapter);
+        adapter->add(server, ic->stringToIdentity("Server"));
+
+        /*UserPtr user = new UserImpl("name", "pass");
+        ServerPtr server = new ServerImpl(adapter);
+        ServerPrx serverPrx = ServerPrx::uncheckedCast(adapter->addWithUUID(server));
+        RoomPtr room = new RoomImpl("main", serverPrx);*/
+
+        /*RoomList roomList1;
+        roomList1.push_back(RoomPrx::uncheckedCast(adapter->addWithUUID(new RoomImpl("main"))));
+        roomList1.push_back(RoomPrx::uncheckedCast(adapter->addWithUUID(new RoomImpl("lol"))));
+        */
+
+        /* for(vector<RoomPrx>::iterator it = roomList1.begin(); it != roomList1.end(); ++it) {
+                std::cout << (*it)->getName() << endl;
+        }*/
+
 
         adapter->activate();
         ic->waitForShutdown();
@@ -192,3 +130,146 @@ int main(int argc, char* argv[]){
     return status;
 }
 
+
+ServerImpl::ServerImpl(Ice::ObjectAdapterPtr adapter){
+    this->adapter = adapter;
+}
+
+RoomPrx ServerImpl::CreateRoom(const string& name,
+                               const Ice::Current&){
+
+    ServerPrx serverPrx = ServerPrx::uncheckedCast(adapter->addWithUUID(this));
+    RoomPtr room = new RoomImpl("main", serverPrx);
+    RoomPrx roomPrx = RoomPrx::uncheckedCast(adapter->addWithUUID(room));
+    roomList.push_back(roomPrx);
+
+    return roomPrx;
+}
+
+RoomList ServerImpl::getRooms(const Ice::Current&){
+    return roomList;
+}
+
+RoomPrx ServerImpl::FindRoom(const string& name,
+                             const Ice::Current&){
+    for(vector<RoomPrx>::iterator it = roomList.begin(); it != roomList.end(); ++it) {
+        if((*it)->getName() == name){
+            return *it;
+        }
+    }
+    throw NoSuchRoomExists();
+}
+
+void ServerImpl::RegisterUser(const string& name,
+                              const string& password,
+                              const Ice::Current&) {
+
+    UserPtr user = new UserImpl(name, password);
+    UserPrx userPrx = UserPrx::uncheckedCast(adapter->addWithUUID(user));
+    userList.push_back(userPrx);
+
+}
+
+UserPrx ServerImpl::FindUser(const string& userName, const Ice::Current&){
+
+    for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+        if((*it)->getName() == userName){
+            return *it;
+        }
+    }
+    throw NoSuchUserExists();
+}
+
+
+
+
+RoomImpl::RoomImpl(string name, ServerPrx serverPrx){
+    this->name = name;
+    this->serverPrx = serverPrx;
+}
+
+string RoomImpl::getName(const Ice::Current&){
+    return this->name;
+}
+
+UserList RoomImpl::getUsers(const ::Ice::Current&){
+    return this->userList;
+}
+
+void RoomImpl::AddUser(const UserPrx& user,
+                       const string& password,
+                       const ::Ice::Current&){
+
+    userList.push_back(user);
+}
+
+
+void RoomImpl::SendMessage(const UserPrx& user,
+                           const string& message,
+                           const string& password,
+                           const Ice::Current&){
+
+    cout << "Sending room message" << endl;
+    RoomPrx roomPrx = serverPrx->FindRoom(this->name);
+    for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+        (*it)->SendMessage(roomPrx, user, message);
+    }
+    cout << "done" << endl;
+}
+
+void RoomImpl::Destroy(const Ice::Current&){
+
+}
+
+void RoomImpl::LeaveRoom(const UserPrx& user,
+                         const string& password,
+                         const Ice::Current&){
+    userList.erase(find(userList.begin(), userList.end(),user));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+UserImpl::UserImpl(const string& userName, const string& password){
+    this->userName = userName;
+    this->password = password;
+}
+
+void UserImpl::SendMessage(const RoomPrx& where,
+                           const UserPrx& who,
+                           const string& message,
+                           const Ice::Current&){
+
+    cout << "Sombody is sending message here! " << message << endl;
+
+    //where->SendMessage(who, message, password);
+}
+
+void UserImpl::SendPrivateMessage(const UserPrx& who,
+                                  const string& message,
+                                  const Ice::Current&){
+    cout << who->getName() << ": " << message << endl;
+}
+
+string UserImpl::getName(const Ice::Current&){
+    return userName;
+}
+
+
+void UserImpl::ChangePassword(const string& oldpassword,
+                              const string& newpassword,
+                              const Ice::Current&){
+
+}
+
+string UserImpl::getPassword(const Ice::Current&){
+
+}

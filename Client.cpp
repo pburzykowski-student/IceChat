@@ -12,12 +12,19 @@ main(int argc, char* argv[])
     try {
         ic = Ice::initialize(argc, argv);
         Ice::ObjectPrx base = ic->stringToProxy(
-                                "SimpleChat:default -p 10000");
-        /*ChatPrx chat = ChatPrx::checkedCast(base);
-        if (!chat)
-            throw "Invalid proxy";*/
+                                "Server:default -p 10000");
+        ServerPrx server = ServerPrx::checkedCast(base);
+        if (!server)
+            throw "Invalid proxy";
 
-	cout << "Working!" << endl;
+        server->RegisterUser("User1", "pass1");
+        UserPrx userPrx = server->FindUser("User1");
+        RoomPrx roomPrx = server->CreateRoom("room1");
+        roomPrx->AddUser(userPrx, "pass1");
+
+        roomPrx->SendMessage(userPrx, "test", "pass1");
+
+	cout << "Working  <--!" << endl;
     } catch (const Ice::Exception& ex) {
         cerr << ex << endl;
         status = 1;
