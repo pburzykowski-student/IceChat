@@ -224,7 +224,7 @@ public:
     virtual ::std::shared_ptr<::Chat::UserPrx> FindUser(::std::string, const ::Ice::Current&) = 0;
     bool _iceD_FindUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
-    virtual void RegisterUser(::std::string, ::std::string, const ::Ice::Current&) = 0;
+    virtual void RegisterUser(::std::shared_ptr<::Chat::UserPrx>, const ::Ice::Current&) = 0;
     bool _iceD_RegisterUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual bool _iceDispatch(::IceInternal::Incoming&, const ::Ice::Current&) override;
@@ -499,29 +499,29 @@ public:
 
     void _iceI_FindUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::shared_ptr<::Chat::UserPrx>>>&, const ::std::string&, const ::Ice::Context&);
 
-    void RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context = Ice::noExplicitContext)
+    void RegisterUser(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context = Ice::noExplicitContext)
     {
-        _makePromiseOutgoing<void>(true, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, iceP_password, context).get();
+        _makePromiseOutgoing<void>(true, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, context).get();
     }
 
     template<template<typename> class P = ::std::promise>
-    auto RegisterUserAsync(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context = Ice::noExplicitContext)
+    auto RegisterUserAsync(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context = Ice::noExplicitContext)
         -> decltype(::std::declval<P<void>>().get_future())
     {
-        return _makePromiseOutgoing<void, P>(false, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, iceP_password, context);
+        return _makePromiseOutgoing<void, P>(false, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, context);
     }
 
     ::std::function<void()>
-    RegisterUserAsync(const ::std::string& iceP_name, const ::std::string& iceP_password,
+    RegisterUserAsync(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name,
                       ::std::function<void()> response,
                       ::std::function<void(::std::exception_ptr)> ex = nullptr,
                       ::std::function<void(bool)> sent = nullptr,
                       const ::Ice::Context& context = Ice::noExplicitContext)
     {
-        return _makeLamdaOutgoing<void>(response, ex, sent, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, iceP_password, context);
+        return _makeLamdaOutgoing<void>(response, ex, sent, this, &Chat::ServerPrx::_iceI_RegisterUser, iceP_name, context);
     }
 
-    void _iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::std::string&, const ::std::string&, const ::Ice::Context&);
+    void _iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::std::shared_ptr<::Chat::UserPrx>&, const ::Ice::Context&);
 
     static const ::std::string& ice_staticId();
 
@@ -1271,41 +1271,41 @@ private:
 
 public:
 
-    void RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    void RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        end_RegisterUser(_iceI_begin_RegisterUser(iceP_name, iceP_password, context, ::IceInternal::dummyCallback, 0, true));
+        end_RegisterUser(_iceI_begin_RegisterUser(iceP_name, context, ::IceInternal::dummyCallback, 0, true));
     }
 
-    ::Ice::AsyncResultPtr begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ::Ice::AsyncResultPtr begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context = ::Ice::noExplicitContext)
     {
-        return _iceI_begin_RegisterUser(iceP_name, iceP_password, context, ::IceInternal::dummyCallback, 0);
+        return _iceI_begin_RegisterUser(iceP_name, context, ::IceInternal::dummyCallback, 0);
     }
 
-    ::Ice::AsyncResultPtr begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    ::Ice::AsyncResultPtr begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
     {
-        return _iceI_begin_RegisterUser(iceP_name, iceP_password, ::Ice::noExplicitContext, del, cookie);
+        return _iceI_begin_RegisterUser(iceP_name, ::Ice::noExplicitContext, del, cookie);
     }
 
-    ::Ice::AsyncResultPtr begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    ::Ice::AsyncResultPtr begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
     {
-        return _iceI_begin_RegisterUser(iceP_name, iceP_password, context, del, cookie);
+        return _iceI_begin_RegisterUser(iceP_name, context, del, cookie);
     }
 
-    ::Ice::AsyncResultPtr begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Chat::Callback_Server_RegisterUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    ::Ice::AsyncResultPtr begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Chat::Callback_Server_RegisterUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
     {
-        return _iceI_begin_RegisterUser(iceP_name, iceP_password, ::Ice::noExplicitContext, del, cookie);
+        return _iceI_begin_RegisterUser(iceP_name, ::Ice::noExplicitContext, del, cookie);
     }
 
-    ::Ice::AsyncResultPtr begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context, const ::Chat::Callback_Server_RegisterUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    ::Ice::AsyncResultPtr begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::Chat::Callback_Server_RegisterUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
     {
-        return _iceI_begin_RegisterUser(iceP_name, iceP_password, context, del, cookie);
+        return _iceI_begin_RegisterUser(iceP_name, context, del, cookie);
     }
 
     void end_RegisterUser(const ::Ice::AsyncResultPtr&);
 
 private:
 
-    ::Ice::AsyncResultPtr _iceI_begin_RegisterUser(const ::std::string&, const ::std::string&, const ::Ice::Context&, const ::IceInternal::CallbackBasePtr&, const ::Ice::LocalObjectPtr& cookie = 0, bool sync = false);
+    ::Ice::AsyncResultPtr _iceI_begin_RegisterUser(const ::Chat::UserPrx&, const ::Ice::Context&, const ::IceInternal::CallbackBasePtr&, const ::Ice::LocalObjectPtr& cookie = 0, bool sync = false);
 
 public:
 
@@ -1637,7 +1637,7 @@ public:
     virtual ::Chat::UserPrx FindUser(const ::std::string&, const ::Ice::Current& = ::Ice::emptyCurrent) = 0;
     bool _iceD_FindUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
-    virtual void RegisterUser(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::emptyCurrent) = 0;
+    virtual void RegisterUser(const ::Chat::UserPrx&, const ::Ice::Current& = ::Ice::emptyCurrent) = 0;
     bool _iceD_RegisterUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual bool _iceDispatch(::IceInternal::Incoming&, const ::Ice::Current&);

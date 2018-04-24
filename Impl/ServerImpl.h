@@ -21,8 +21,7 @@
         virtual RoomList getRooms(const Ice::Current&);
         virtual RoomPrx FindRoom(const string& name,
                                  const Ice::Current&);
-        virtual void RegisterUser(const string& name,
-                                  const string& password,
+        virtual void RegisterUser(const UserPrx&,
                                   const Ice::Current&);
         virtual UserPrx FindUser(const string& userName, const Ice::Current&);
 

@@ -425,11 +425,10 @@ Chat::Server::_iceD_RegisterUser(::IceInternal::Incoming& inS, const ::Ice::Curr
 {
     _iceCheckMode(::Ice::OperationMode::Normal, current.mode);
     auto istr = inS.startReadParams();
-    ::std::string iceP_name;
-    ::std::string iceP_password;
-    istr->readAll(iceP_name, iceP_password);
+    ::std::shared_ptr<::Chat::UserPrx> iceP_name;
+    istr->readAll(iceP_name);
     inS.endReadParams();
-    this->RegisterUser(::std::move(iceP_name), ::std::move(iceP_password), current);
+    this->RegisterUser(::std::move(iceP_name), current);
     inS.writeEmptyParams();
     return true;
 }
@@ -812,13 +811,13 @@ Chat::ServerPrx::_iceI_FindUser(const ::std::shared_ptr<::IceInternal::OutgoingA
 }
 
 void
-Chat::ServerPrx::_iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>& outAsync, const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context)
+Chat::ServerPrx::_iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>& outAsync, const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context)
 {
     _checkTwowayOnly(iceC_Chat_Server_RegisterUser_name);
     outAsync->invoke(iceC_Chat_Server_RegisterUser_name, ::Ice::OperationMode::Normal, ::Ice::FormatType::DefaultFormat, context,
         [&](::Ice::OutputStream* ostr)
         {
-            ostr->writeAll(iceP_name, iceP_password);
+            ostr->writeAll(iceP_name);
         },
         [](const ::Ice::UserException& ex)
         {
@@ -1598,7 +1597,7 @@ IceProxy::Chat::Server::end_FindUser(const ::Ice::AsyncResultPtr& result)
 }
 
 ::Ice::AsyncResultPtr
-IceProxy::Chat::Server::_iceI_begin_RegisterUser(const ::std::string& iceP_name, const ::std::string& iceP_password, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
+IceProxy::Chat::Server::_iceI_begin_RegisterUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
 {
     _checkTwowayOnly(iceC_Chat_Server_RegisterUser_name, sync);
     ::IceInternal::OutgoingAsyncPtr result = new ::IceInternal::CallbackOutgoing(this, iceC_Chat_Server_RegisterUser_name, del, cookie, sync);
@@ -1607,7 +1606,6 @@ IceProxy::Chat::Server::_iceI_begin_RegisterUser(const ::std::string& iceP_name,
         result->prepare(iceC_Chat_Server_RegisterUser_name, ::Ice::Normal, context);
         ::Ice::OutputStream* ostr = result->startWriteParams(::Ice::DefaultFormat);
         ostr->write(iceP_name);
-        ostr->write(iceP_password);
         result->endWriteParams();
         result->invoke(iceC_Chat_Server_RegisterUser_name);
     }
@@ -2203,12 +2201,10 @@ Chat::Server::_iceD_RegisterUser(::IceInternal::Incoming& inS, const ::Ice::Curr
 {
     _iceCheckMode(::Ice::Normal, current.mode);
     ::Ice::InputStream* istr = inS.startReadParams();
-    ::std::string iceP_name;
-    ::std::string iceP_password;
+    ::Chat::UserPrx iceP_name;
     istr->read(iceP_name);
-    istr->read(iceP_password);
     inS.endReadParams();
-    this->RegisterUser(iceP_name, iceP_password, current);
+    this->RegisterUser(iceP_name, current);
     inS.writeEmptyParams();
     return true;
 }

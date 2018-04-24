@@ -24,7 +24,7 @@ interface Server {
   RoomList getRooms();
   Room* FindRoom(string name) throws NoSuchRoomExists;
   User* FindUser(string name) throws NoSuchUserExists;
-  void RegisterUser(string name, string password) throws UserAlreadyExists;
+  void RegisterUser(User* name) throws UserAlreadyExists;
 };
 
 sequence<User*> UserList;

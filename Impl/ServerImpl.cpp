@@ -32,12 +32,9 @@ RoomPrx ServerImpl::FindRoom(const string& name,
     throw NoSuchRoomExists();
 }
 
-void ServerImpl::RegisterUser(const string& name,
-                              const string& password,
+void ServerImpl::RegisterUser(const UserPrx& userPrx,
                               const Ice::Current&) {
 
-    UserPtr user = new UserImpl(name, password);
-    UserPrx userPrx = UserPrx::uncheckedCast(adapter->addWithUUID(user));
     userList.push_back(userPrx);
 
 }

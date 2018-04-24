@@ -1,5 +1,7 @@
 #include <Ice/Ice.h>
 #include <Chat.h>
+#include "Impl/UserImpl.h"
+
 using namespace std;
 using namespace Chat;
 
@@ -17,8 +19,15 @@ main(int argc, char* argv[])
         if (!server)
             throw "Invalid proxy";
 
-        server->RegisterUser("User1", "pass1");
-        UserPrx userPrx = server->FindUser("User1");
+
+        Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("UserUser1", "default -p 10001 ");
+        adapter->activate();
+
+        UserPtr user = new UserImpl("User1", "pass1");
+        UserPrx userPrx = UserPrx::uncheckedCast(adapter->addWithUUID(user));
+        server->RegisterUser(userPrx);
+
+        userPrx = server->FindUser("User1");
         RoomPrx roomPrx = server->CreateRoom("room1");
         roomPrx->AddUser(userPrx, "pass1");
 
