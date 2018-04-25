@@ -1,18 +1,18 @@
 #include "UserImpl.h"
 
+
 UserImpl::UserImpl(const string& userName, const string& password){
     this->userName = userName;
     this->password = password;
 }
 
-void UserImpl::SendMessage(const RoomPrx& where,
-                           const UserPrx& who,
+void UserImpl::SendMessage(const string & room,
+                           const UserPrx& user,
                            const string& message,
                            const Ice::Current&){
 
-    cout << "Sombody is sending message here! " << message << endl;
 
-    //where->SendMessage(who, message, password);
+    cout << "(" << room << "): " << user->getName() << ": " << message << endl;
 }
 
 void UserImpl::SendPrivateMessage(const UserPrx& who,

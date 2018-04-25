@@ -10,7 +10,7 @@ exception WrongPassword {};
 
 
 interface User {
-  void SendMessage(Room* where, User* who, string message);
+  void SendMessage(string roomName, User* who, string message);
   void SendPrivateMessage(User* who, string message);
   void ChangePassword(string oldpassword, string newpassword) throws WrongPassword;
   string getName();

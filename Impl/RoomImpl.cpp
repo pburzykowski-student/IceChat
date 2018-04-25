@@ -26,12 +26,12 @@ void RoomImpl::SendMessage(const UserPrx& user,
                            const string& password,
                            const Ice::Current&){
 
-    cout << "Sending room message" << endl;
     RoomPrx roomPrx = serverPrx->FindRoom(this->name);
+
+    string roomName = roomPrx->getName();
     for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
-        (*it)->SendMessage(roomPrx, user, message);
+        (*it)->SendMessage(roomName, user, message);
     }
-    cout << "done" << endl;
 }
 
 void RoomImpl::Destroy(const Ice::Current&){

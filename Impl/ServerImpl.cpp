@@ -11,7 +11,7 @@ RoomPrx ServerImpl::CreateRoom(const string& name,
                                const Ice::Current&){
 
     ServerPrx serverPrx = ServerPrx::uncheckedCast(adapter->addWithUUID(this));
-    RoomPtr room = new RoomImpl("main", serverPrx);
+    RoomPtr room = new RoomImpl(name, serverPrx);
     RoomPrx roomPrx = RoomPrx::uncheckedCast(adapter->addWithUUID(room));
     roomList.push_back(roomPrx);
 
@@ -37,14 +37,24 @@ void ServerImpl::RegisterUser(const UserPrx& userPrx,
 
     userList.push_back(userPrx);
 
+    cout << "Users: " << endl;
+    for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+        cout << (*it)->getName() << endl;
+    }
+
 }
 
 UserPrx ServerImpl::FindUser(const string& userName, const Ice::Current&){
 
+    cout << "Hello from find user" << endl;
     for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+        cout << "iterating" << endl;
+        cout << (*it)->getName() << endl;
         if((*it)->getName() == userName){
+            cout << "found!" << endl;
             return *it;
         }
     }
+    cout << "Throw e" << endl;
     throw NoSuchUserExists();
 }

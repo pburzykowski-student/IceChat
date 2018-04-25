@@ -15,7 +15,7 @@
     public:
         UserImpl(const string& userName, const string& password);
 
-        virtual void SendMessage(const RoomPrx& where,
+        virtual void SendMessage(const string&,
                                  const UserPrx& who,
                                  const string& message,
                                  const Ice::Current&);
