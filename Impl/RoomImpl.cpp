@@ -16,8 +16,11 @@ UserList RoomImpl::getUsers(const ::Ice::Current&){
 void RoomImpl::AddUser(const UserPrx& user,
                        const string& password,
                        const ::Ice::Current&){
-
     userList.push_back(user);
+    string message = user->getName() + "has joined the room!";
+    /*for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+        (*it)->SendMessage(roomName, user, message);
+    }*/
 }
 
 
@@ -27,7 +30,6 @@ void RoomImpl::SendMessage(const UserPrx& user,
                            const Ice::Current&){
 
     RoomPrx roomPrx = serverPrx->FindRoom(this->name);
-
     string roomName = roomPrx->getName();
     for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
         (*it)->SendMessage(roomName, user, message);
@@ -43,3 +45,4 @@ void RoomImpl::LeaveRoom(const UserPrx& user,
                          const Ice::Current&){
     userList.erase(find(userList.begin(), userList.end(),user));
 }
+

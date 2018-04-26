@@ -11,6 +11,7 @@ class ClientHandler{
 private:
     Ice::CommunicatorPtr ic;
     ServerPrx serverPrx;
+    RoomPrx roomPrx;
     UserPrx userPrx;
     string userName;
     string password;
@@ -42,12 +43,33 @@ public:
         connectToServer();
     }
 
+    ~ClientHandler(){
+        if(roomPrx){
+            roomPrx->LeaveRoom(userPrx, password);
+            serverPrx->removeUser(userPrx);
+            cout << "You have been log out successfully!" << endl;
+            ic->destroy();
+        }
+    }
+
     Ice::CommunicatorPtr getCommunicatorPtr(){
         return ic;
     }
 
     string getUserName(){
         return userName;
+    }
+
+    string getRoomName(){
+        return roomPrx->getName();
+    }
+
+    bool isRoom(){
+        if(roomPrx){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     bool createUser(string userName, string password){
@@ -73,6 +95,47 @@ public:
             return true;
         }
         return false;
+    }
+
+    bool createRoom(string roomName){
+
+        try{
+            serverPrx->FindRoom(roomName);
+        } catch(NoSuchRoomExists e){
+
+            if(roomPrx){
+                roomPrx->LeaveRoom(this->userPrx, this->password);
+            }
+
+            roomPrx = serverPrx->CreateRoom(roomName);
+            roomPrx->AddUser(userPrx, this->password);
+            return true;
+        }
+        return false;
+    }
+
+    bool joinRoom(string roomName){
+        RoomPrx joinRoomPrx;
+        try{
+            joinRoomPrx = serverPrx->FindRoom(roomName);
+        }catch(NoSuchRoomExists e){
+            return false;
+        }
+
+        if(roomPrx){
+            roomPrx->LeaveRoom(this->userPrx, this->password);
+        }
+
+        roomPrx = joinRoomPrx;
+        roomPrx->AddUser(this->userPrx, this->password);
+        return true;
+    }
+
+    void say(string message){
+        roomPrx->SendMessage(userPrx, message, this->password);
+    }
+
+    void whisper(){
 
     }
 
@@ -81,7 +144,7 @@ public:
 class commandSplitter{
 private:
     string key;
-    string arg;
+    string args;
 
 public:
 
@@ -89,23 +152,35 @@ public:
         return key;
     }
 
-    string getArg(){
-        return arg;
+    string getArgs(){
+        return args;
     }
 
     void execute(string command){
+        this->clear();
         int position = 0;
-        char current = command[position];
+        char current;
 
-        while(current != ' ' && position < command.length()){
-            current = command[position++];
+        while(true){
+            current = command[position];
+            if(current == ' ' || position > command.length()){
+                break;
+            }
+            position++;
             key += current;
         }
 
+        position++;
+
         for(int i = position; i < command.length(); i++){
             current = command[position++];
-            arg += current;
+            args += current;
         }
+    }
+
+    void clear(){
+        key = "";
+        args = "";
     }
 };
 
@@ -132,50 +207,85 @@ main(int argc, char* argv[])
         cout << endl;
         cout << endl;
 
-        bool isRegistred;
+        bool isRegistered;
         do {
-            cout << "=== Register user === " << endl;
+            cout << "============= Register user =============" << endl;
             cout << "User name: " << endl;
             cin >> userName;
             cout << "Password" << endl;
             cin >> password;
+            cout << endl;
 
-            isRegistred = client.createUser(userName, password);
-            if(!isRegistred){
+            isRegistered = client.createUser(userName, password);
+            if(!isRegistered){
                 cout << "Sorry, that user name is not available!" << endl;
             }
-        } while(!isRegistred);
+        } while(!isRegistered);
+
+
+        cout << endl;
+        cout << "You are now registered as " + client.getUserName() << endl;
+        cout << "========================================\n\n";
+
+        commandSplitter commandSplitter;
+        string commandInput;
+        string key;
+        string args;
+
+        cin.ignore();
+        while(true){
+            cout << endl;
+
+            getline(cin, commandInput);
+            if(commandInput == "/exit"){
+                break;
+            }
+
+            commandSplitter.execute(commandInput);
+            key = commandSplitter.getKey();
+            args = commandSplitter.getArgs();
+
+            if(key == "/createroom" || key == "/cr"){
+                if(client.createRoom(commandSplitter.getArgs())){
+                    cout << "Room " << args << " has been created successfully!" << endl;
+                    cout << "You are now in the room: " << client.getRoomName() << endl;
+                } else {
+                    cout << "Can't create room " << args << ". Check if room already exists!" <<endl;
+                }
+                continue;
+            }
+
+            if(key == "/say" || key == "/s"){
+                client.say(args);
+                continue;
+            }
+
+            if(key == "/joinroom" || key == "/jr"){
+                if(client.joinRoom(args)){
+                    cout << "You have joined room " + args + " successfully!" << endl;
+                } else {
+                    cout << "Can't join room. Check if room exists!" << endl;
+                }
+                continue;
+            }
+
+            if(key == "/help" || key == "/h"){
+                cout << endl;
+                cout << "===== HELP ===== "<< endl;
+                cout << "Warning: list may not be completed!" << endl;
+                cout << endl;
+                cout << "/createroom, /cr : \t creating new instance of room "<< endl;
+                cout << "/say, /s : \t sending message to current room" << endl;
+                cout << "/whisper, /w : \t sending message to user. First write command and after that you will"
+                       "be able to write message! " << endl;
+                continue;
+            }
+
+            cout << "Command not found" << endl;
+        }
 
 
 
-
-
-
-        string t = "/say cos tam";
-        commandSplitter cs;
-        cs.execute(t);
-
-        cout << "Key:" << endl;
-        cout << cs.getKey() << endl;
-        cout << "Arg: " << endl;
-        cout << cs.getArg() << endl;
-
-
-        string end;
-        cin >> end;
-
-        /*UserPtr user = new UserImpl("User1", "pass1");
-        UserPrx userPrx = UserPrx::uncheckedCast(adapter->addWithUUID(user));
-        server->RegisterUser(userPrx);
-
-        userPrx = server->FindUser("User1");
-        RoomPrx roomPrx = server->CreateRoom("room1");
-        roomPrx->AddUser(userPrx, "pass1");
-
-        cout << "Sending message" << endl;
-        roomPrx->SendMessage(userPrx, "test", "pass1");*/
-
-	cout << "Working  <--!" << endl;
     } catch (const Ice::Exception& ex) {
         cerr << ex << endl;
         status = 1;
@@ -185,5 +295,7 @@ main(int argc, char* argv[])
     }
     if (ic)
         ic->destroy();
+
+    cout << "Exit program..." << endl;
     return status;
 }

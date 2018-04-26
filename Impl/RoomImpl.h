@@ -30,6 +30,7 @@
         virtual void LeaveRoom(const UserPrx& user,
                                const string& password,
                                const Ice::Current&);
+
     };
 
 #endif

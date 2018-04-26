@@ -101,13 +101,15 @@ const ::std::string iceC_Chat_Server_ops[] =
     "ice_id",
     "ice_ids",
     "ice_isA",
-    "ice_ping"
+    "ice_ping",
+    "removeUser"
 };
 const ::std::string iceC_Chat_Server_CreateRoom_name = "CreateRoom";
 const ::std::string iceC_Chat_Server_getRooms_name = "getRooms";
 const ::std::string iceC_Chat_Server_FindRoom_name = "FindRoom";
 const ::std::string iceC_Chat_Server_FindUser_name = "FindUser";
 const ::std::string iceC_Chat_Server_RegisterUser_name = "RegisterUser";
+const ::std::string iceC_Chat_Server_removeUser_name = "removeUser";
 
 const ::std::string iceC_Chat_Room_ids[2] =
 {
@@ -434,9 +436,22 @@ Chat::Server::_iceD_RegisterUser(::IceInternal::Incoming& inS, const ::Ice::Curr
 }
 
 bool
+Chat::Server::_iceD_removeUser(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::OperationMode::Normal, current.mode);
+    auto istr = inS.startReadParams();
+    ::std::shared_ptr<::Chat::UserPrx> iceP_name;
+    istr->readAll(iceP_name);
+    inS.endReadParams();
+    this->removeUser(::std::move(iceP_name), current);
+    inS.writeEmptyParams();
+    return true;
+}
+
+bool
 Chat::Server::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_Chat_Server_ops, iceC_Chat_Server_ops + 9, current.operation);
+    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_Chat_Server_ops, iceC_Chat_Server_ops + 10, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -479,6 +494,10 @@ Chat::Server::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& cu
         case 8:
         {
             return _iceD_ice_ping(in, current);
+        }
+        case 9:
+        {
+            return _iceD_removeUser(in, current);
         }
         default:
         {
@@ -835,6 +854,31 @@ Chat::ServerPrx::_iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::Outgo
         });
 }
 
+void
+Chat::ServerPrx::_iceI_removeUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>& outAsync, const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context)
+{
+    _checkTwowayOnly(iceC_Chat_Server_removeUser_name);
+    outAsync->invoke(iceC_Chat_Server_removeUser_name, ::Ice::OperationMode::Normal, ::Ice::FormatType::DefaultFormat, context,
+        [&](::Ice::OutputStream* ostr)
+        {
+            ostr->writeAll(iceP_name);
+        },
+        [](const ::Ice::UserException& ex)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const ::Chat::NoSuchUserExists&)
+            {
+                throw;
+            }
+            catch(const ::Ice::UserException&)
+            {
+            }
+        });
+}
+
 ::std::shared_ptr<::Ice::ObjectPrx>
 Chat::ServerPrx::_newInstance() const
 {
@@ -956,6 +1000,8 @@ const ::std::string iceC_Chat_Server_FindRoom_name = "FindRoom";
 const ::std::string iceC_Chat_Server_FindUser_name = "FindUser";
 
 const ::std::string iceC_Chat_Server_RegisterUser_name = "RegisterUser";
+
+const ::std::string iceC_Chat_Server_removeUser_name = "removeUser";
 
 const ::std::string iceC_Chat_Room_getName_name = "getName";
 
@@ -1638,6 +1684,48 @@ IceProxy::Chat::Server::end_RegisterUser(const ::Ice::AsyncResultPtr& result)
     result->_readEmptyParams();
 }
 
+::Ice::AsyncResultPtr
+IceProxy::Chat::Server::_iceI_begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::IceInternal::CallbackBasePtr& del, const ::Ice::LocalObjectPtr& cookie, bool sync)
+{
+    _checkTwowayOnly(iceC_Chat_Server_removeUser_name, sync);
+    ::IceInternal::OutgoingAsyncPtr result = new ::IceInternal::CallbackOutgoing(this, iceC_Chat_Server_removeUser_name, del, cookie, sync);
+    try
+    {
+        result->prepare(iceC_Chat_Server_removeUser_name, ::Ice::Normal, context);
+        ::Ice::OutputStream* ostr = result->startWriteParams(::Ice::DefaultFormat);
+        ostr->write(iceP_name);
+        result->endWriteParams();
+        result->invoke(iceC_Chat_Server_removeUser_name);
+    }
+    catch(const ::Ice::Exception& ex)
+    {
+        result->abort(ex);
+    }
+    return result;
+}
+
+void
+IceProxy::Chat::Server::end_removeUser(const ::Ice::AsyncResultPtr& result)
+{
+    ::Ice::AsyncResult::_check(result, this, iceC_Chat_Server_removeUser_name);
+    if(!result->_waitForResponse())
+    {
+        try
+        {
+            result->_throwUserException();
+        }
+        catch(const ::Chat::NoSuchUserExists&)
+        {
+            throw;
+        }
+        catch(const ::Ice::UserException& ex)
+        {
+            throw ::Ice::UnknownUserException(__FILE__, __LINE__, ex.ice_id());
+        }
+    }
+    result->_readEmptyParams();
+}
+
 ::IceProxy::Ice::Object*
 IceProxy::Chat::Server::_newInstance() const
 {
@@ -2209,6 +2297,19 @@ Chat::Server::_iceD_RegisterUser(::IceInternal::Incoming& inS, const ::Ice::Curr
     return true;
 }
 
+bool
+Chat::Server::_iceD_removeUser(::IceInternal::Incoming& inS, const ::Ice::Current& current)
+{
+    _iceCheckMode(::Ice::Normal, current.mode);
+    ::Ice::InputStream* istr = inS.startReadParams();
+    ::Chat::UserPrx iceP_name;
+    istr->read(iceP_name);
+    inS.endReadParams();
+    this->removeUser(iceP_name, current);
+    inS.writeEmptyParams();
+    return true;
+}
+
 namespace
 {
 const ::std::string iceC_Chat_Server_all[] =
@@ -2221,7 +2322,8 @@ const ::std::string iceC_Chat_Server_all[] =
     "ice_id",
     "ice_ids",
     "ice_isA",
-    "ice_ping"
+    "ice_ping",
+    "removeUser"
 };
 
 }
@@ -2229,7 +2331,7 @@ const ::std::string iceC_Chat_Server_all[] =
 bool
 Chat::Server::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_Chat_Server_all, iceC_Chat_Server_all + 9, current.operation);
+    ::std::pair<const ::std::string*, const ::std::string*> r = ::std::equal_range(iceC_Chat_Server_all, iceC_Chat_Server_all + 10, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -2272,6 +2374,10 @@ Chat::Server::_iceDispatch(::IceInternal::Incoming& in, const ::Ice::Current& cu
         case 8:
         {
             return _iceD_ice_ping(in, current);
+        }
+        case 9:
+        {
+            return _iceD_removeUser(in, current);
         }
         default:
         {

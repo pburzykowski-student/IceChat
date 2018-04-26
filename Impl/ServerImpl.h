@@ -23,8 +23,10 @@
                                  const Ice::Current&);
         virtual void RegisterUser(const UserPrx&,
                                   const Ice::Current&);
-        virtual UserPrx FindUser(const string& userName, const Ice::Current&);
-
+        virtual UserPrx FindUser(const string& userName,
+                                 const Ice::Current&);
+        virtual void removeUser(const UserPrx& user,
+                                const Ice::Current&);
 
     };
 

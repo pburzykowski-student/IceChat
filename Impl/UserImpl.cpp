@@ -12,7 +12,7 @@ void UserImpl::SendMessage(const string & room,
                            const Ice::Current&){
 
 
-    cout << "(" << room << "): " << user->getName() << ": " << message << endl;
+    cout << "(Room: " << room << ") " << user->getName() << ": " << message << endl;
 }
 
 void UserImpl::SendPrivateMessage(const UserPrx& who,

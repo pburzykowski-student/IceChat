@@ -34,27 +34,24 @@ RoomPrx ServerImpl::FindRoom(const string& name,
 
 void ServerImpl::RegisterUser(const UserPrx& userPrx,
                               const Ice::Current&) {
-
     userList.push_back(userPrx);
 
-    cout << "Users: " << endl;
-    for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
-        cout << (*it)->getName() << endl;
-    }
+    string userName = userPrx->getName();
+    cout << userName << " has joined the server!" << endl;
+
 
 }
 
 UserPrx ServerImpl::FindUser(const string& userName, const Ice::Current&){
 
-    cout << "Hello from find user" << endl;
     for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
-        cout << "iterating" << endl;
-        cout << (*it)->getName() << endl;
         if((*it)->getName() == userName){
-            cout << "found!" << endl;
             return *it;
         }
     }
-    cout << "Throw e" << endl;
     throw NoSuchUserExists();
+}
+
+void ServerImpl::removeUser(const UserPrx& user, const Ice::Current&){
+    userList.erase(find(userList.begin(), userList.end(),user));
 }

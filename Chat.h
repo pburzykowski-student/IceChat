@@ -227,6 +227,9 @@ public:
     virtual void RegisterUser(::std::shared_ptr<::Chat::UserPrx>, const ::Ice::Current&) = 0;
     bool _iceD_RegisterUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
+    virtual void removeUser(::std::shared_ptr<::Chat::UserPrx>, const ::Ice::Current&) = 0;
+    bool _iceD_removeUser(::IceInternal::Incoming&, const ::Ice::Current&);
+
     virtual bool _iceDispatch(::IceInternal::Incoming&, const ::Ice::Current&) override;
 };
 
@@ -522,6 +525,30 @@ public:
     }
 
     void _iceI_RegisterUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::std::shared_ptr<::Chat::UserPrx>&, const ::Ice::Context&);
+
+    void removeUser(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context = Ice::noExplicitContext)
+    {
+        _makePromiseOutgoing<void>(true, this, &Chat::ServerPrx::_iceI_removeUser, iceP_name, context).get();
+    }
+
+    template<template<typename> class P = ::std::promise>
+    auto removeUserAsync(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name, const ::Ice::Context& context = Ice::noExplicitContext)
+        -> decltype(::std::declval<P<void>>().get_future())
+    {
+        return _makePromiseOutgoing<void, P>(false, this, &Chat::ServerPrx::_iceI_removeUser, iceP_name, context);
+    }
+
+    ::std::function<void()>
+    removeUserAsync(const ::std::shared_ptr<::Chat::UserPrx>& iceP_name,
+                    ::std::function<void()> response,
+                    ::std::function<void(::std::exception_ptr)> ex = nullptr,
+                    ::std::function<void(bool)> sent = nullptr,
+                    const ::Ice::Context& context = Ice::noExplicitContext)
+    {
+        return _makeLamdaOutgoing<void>(response, ex, sent, this, &Chat::ServerPrx::_iceI_removeUser, iceP_name, context);
+    }
+
+    void _iceI_removeUser(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::std::shared_ptr<::Chat::UserPrx>&, const ::Ice::Context&);
 
     static const ::std::string& ice_staticId();
 
@@ -887,6 +914,9 @@ typedef ::IceUtil::Handle< Callback_Server_FindUser_Base> Callback_Server_FindUs
 
 class Callback_Server_RegisterUser_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Server_RegisterUser_Base> Callback_Server_RegisterUserPtr;
+
+class Callback_Server_removeUser_Base : public virtual ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_Server_removeUser_Base> Callback_Server_removeUserPtr;
 
 class Callback_Room_getName_Base : public virtual ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_Room_getName_Base> Callback_Room_getNamePtr;
@@ -1309,6 +1339,44 @@ private:
 
 public:
 
+    void removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    {
+        end_removeUser(_iceI_begin_removeUser(iceP_name, context, ::IceInternal::dummyCallback, 0, true));
+    }
+
+    ::Ice::AsyncResultPtr begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    {
+        return _iceI_begin_removeUser(iceP_name, context, ::IceInternal::dummyCallback, 0);
+    }
+
+    ::Ice::AsyncResultPtr begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    {
+        return _iceI_begin_removeUser(iceP_name, ::Ice::noExplicitContext, del, cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::Ice::CallbackPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    {
+        return _iceI_begin_removeUser(iceP_name, context, del, cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Chat::Callback_Server_removeUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    {
+        return _iceI_begin_removeUser(iceP_name, ::Ice::noExplicitContext, del, cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_removeUser(const ::Chat::UserPrx& iceP_name, const ::Ice::Context& context, const ::Chat::Callback_Server_removeUserPtr& del, const ::Ice::LocalObjectPtr& cookie = 0)
+    {
+        return _iceI_begin_removeUser(iceP_name, context, del, cookie);
+    }
+
+    void end_removeUser(const ::Ice::AsyncResultPtr&);
+
+private:
+
+    ::Ice::AsyncResultPtr _iceI_begin_removeUser(const ::Chat::UserPrx&, const ::Ice::Context&, const ::IceInternal::CallbackBasePtr&, const ::Ice::LocalObjectPtr& cookie = 0, bool sync = false);
+
+public:
+
     static const ::std::string& ice_staticId();
 
 protected:
@@ -1639,6 +1707,9 @@ public:
 
     virtual void RegisterUser(const ::Chat::UserPrx&, const ::Ice::Current& = ::Ice::emptyCurrent) = 0;
     bool _iceD_RegisterUser(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual void removeUser(const ::Chat::UserPrx&, const ::Ice::Current& = ::Ice::emptyCurrent) = 0;
+    bool _iceD_removeUser(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual bool _iceDispatch(::IceInternal::Incoming&, const ::Ice::Current&);
 
@@ -2787,6 +2858,132 @@ template<class T, typename CT> Callback_Server_RegisterUserPtr
 newCallback_Server_RegisterUser(T* instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
 {
     return new Callback_Server_RegisterUser<T, CT>(instance, 0, excb, sentcb);
+}
+
+template<class T>
+class CallbackNC_Server_removeUser : public Callback_Server_removeUser_Base, public ::IceInternal::TwowayCallbackNC<T>
+{
+public:
+
+    typedef IceUtil::Handle<T> TPtr;
+
+    typedef void (T::*Exception)(const ::Ice::Exception&);
+    typedef void (T::*Sent)(bool);
+    typedef void (T::*Response)();
+
+    CallbackNC_Server_removeUser(const TPtr& obj, Response cb, Exception excb, Sent sentcb)
+        : ::IceInternal::TwowayCallbackNC<T>(obj, cb != 0, excb, sentcb), _response(cb)
+    {
+    }
+
+    virtual void completed(const ::Ice::AsyncResultPtr& result) const
+    {
+        ::Chat::ServerPrx proxy = ::Chat::ServerPrx::uncheckedCast(result->getProxy());
+        try
+        {
+            proxy->end_removeUser(result);
+        }
+        catch(const ::Ice::Exception& ex)
+        {
+            ::IceInternal::CallbackNC<T>::exception(result, ex);
+            return;
+        }
+        if(_response)
+        {
+            (::IceInternal::CallbackNC<T>::_callback.get()->*_response)();
+        }
+    }
+
+private:
+
+    Response _response;
+};
+
+template<class T> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(const IceUtil::Handle<T>& instance, void (T::*cb)(), void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_Server_removeUser<T>(instance, cb, excb, sentcb);
+}
+
+template<class T> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(const IceUtil::Handle<T>& instance, void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_Server_removeUser<T>(instance, 0, excb, sentcb);
+}
+
+template<class T> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(T* instance, void (T::*cb)(), void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_Server_removeUser<T>(instance, cb, excb, sentcb);
+}
+
+template<class T> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(T* instance, void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_Server_removeUser<T>(instance, 0, excb, sentcb);
+}
+
+template<class T, typename CT>
+class Callback_Server_removeUser : public Callback_Server_removeUser_Base, public ::IceInternal::TwowayCallback<T, CT>
+{
+public:
+
+    typedef IceUtil::Handle<T> TPtr;
+
+    typedef void (T::*Exception)(const ::Ice::Exception& , const CT&);
+    typedef void (T::*Sent)(bool , const CT&);
+    typedef void (T::*Response)(const CT&);
+
+    Callback_Server_removeUser(const TPtr& obj, Response cb, Exception excb, Sent sentcb)
+        : ::IceInternal::TwowayCallback<T, CT>(obj, cb != 0, excb, sentcb), _response(cb)
+    {
+    }
+
+    virtual void completed(const ::Ice::AsyncResultPtr& result) const
+    {
+        ::Chat::ServerPrx proxy = ::Chat::ServerPrx::uncheckedCast(result->getProxy());
+        try
+        {
+            proxy->end_removeUser(result);
+        }
+        catch(const ::Ice::Exception& ex)
+        {
+            ::IceInternal::Callback<T, CT>::exception(result, ex);
+            return;
+        }
+        if(_response)
+        {
+            (::IceInternal::Callback<T, CT>::_callback.get()->*_response)(CT::dynamicCast(result->getCookie()));
+        }
+    }
+
+private:
+
+    Response _response;
+};
+
+template<class T, typename CT> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(const IceUtil::Handle<T>& instance, void (T::*cb)(const CT&), void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_Server_removeUser<T, CT>(instance, cb, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(const IceUtil::Handle<T>& instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_Server_removeUser<T, CT>(instance, 0, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(T* instance, void (T::*cb)(const CT&), void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_Server_removeUser<T, CT>(instance, cb, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_Server_removeUserPtr
+newCallback_Server_removeUser(T* instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_Server_removeUser<T, CT>(instance, 0, excb, sentcb);
 }
 
 template<class T>
