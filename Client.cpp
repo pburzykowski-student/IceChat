@@ -135,7 +135,15 @@ public:
         roomPrx->SendMessage(userPrx, message, this->password);
     }
 
-    void whisper(){
+    void whisper(string userNameDestination, string message){
+        try{
+            UserPrx destinationUserPrx = serverPrx->FindUser(userNameDestination);
+            destinationUserPrx->SendPrivateMessage(this->userPrx, message);
+        }catch(NoSuchUserExists e){
+            cout << "Cannot send message - user does not exists!" << endl;
+        }
+
+
 
     }
 
@@ -163,7 +171,7 @@ public:
 
         while(true){
             current = command[position];
-            if(current == ' ' || position > command.length()){
+            if(current == ' ' || position >= command.length()){
                 break;
             }
             position++;
@@ -269,14 +277,24 @@ main(int argc, char* argv[])
                 continue;
             }
 
+            if(key == "/whisper" || key == "/w"){
+                string userNameDestination = args;
+                string message;
+                cout << "Write message:" << endl;
+                getline(cin, message);
+                client.whisper(userNameDestination, message);
+                continue;
+
+            }
+
             if(key == "/help" || key == "/h"){
                 cout << endl;
                 cout << "===== HELP ===== "<< endl;
                 cout << "Warning: list may not be completed!" << endl;
                 cout << endl;
-                cout << "/createroom, /cr : \t creating new instance of room "<< endl;
-                cout << "/say, /s : \t sending message to current room" << endl;
-                cout << "/whisper, /w : \t sending message to user. First write command and after that you will"
+                cout << "/createroom, /cr : creating new instance of room "<< endl;
+                cout << "/say, /s : sending message to current room" << endl;
+                cout << "/whisper, /w : sending message to user. First write command and after that you will"
                        "be able to write message! " << endl;
                 continue;
             }

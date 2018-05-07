@@ -18,7 +18,7 @@ void UserImpl::SendMessage(const string & room,
 void UserImpl::SendPrivateMessage(const UserPrx& who,
                                   const string& message,
                                   const Ice::Current&){
-    cout << who->getName() << ": " << message << endl;
+    cout <<"(Whisper) " << who->getName() << ": " << message << endl;
 }
 
 string UserImpl::getName(const Ice::Current&){
