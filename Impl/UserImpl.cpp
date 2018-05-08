@@ -29,9 +29,14 @@ string UserImpl::getName(const Ice::Current&){
 void UserImpl::ChangePassword(const string& oldpassword,
                               const string& newpassword,
                               const Ice::Current&){
+    if(oldpassword == this->password){
+        this->password = newpassword;
+    } else {
+        throw new WrongPassword;
+    }
 
 }
 
 string UserImpl::getPassword(const Ice::Current&){
-
+    return this->password;
 }

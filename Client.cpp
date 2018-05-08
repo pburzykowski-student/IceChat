@@ -142,9 +142,6 @@ public:
         }catch(NoSuchUserExists e){
             cout << "Cannot send message - user does not exists!" << endl;
         }
-
-
-
     }
 
 };

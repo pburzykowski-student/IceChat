@@ -16,11 +16,17 @@ UserList RoomImpl::getUsers(const ::Ice::Current&){
 void RoomImpl::AddUser(const UserPrx& user,
                        const string& password,
                        const ::Ice::Current&){
-    userList.push_back(user);
-    string message = user->getName() + "has joined the room!";
-    /*for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
-        (*it)->SendMessage(roomName, user, message);
-    }*/
+
+    if(user->getPassword() != password){
+        throw new WrongPassword;
+    } else {
+        userList.push_back(user);
+        string message = user->getName() + "has joined the room!";
+        /*for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+            (*it)->SendMessage(roomName, user, message);
+        }*/
+    }
+
 }
 
 
@@ -29,20 +35,36 @@ void RoomImpl::SendMessage(const UserPrx& user,
                            const string& password,
                            const Ice::Current&){
 
-    RoomPrx roomPrx = serverPrx->FindRoom(this->name);
-    string roomName = roomPrx->getName();
-    for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
-        (*it)->SendMessage(roomName, user, message);
+    if(user->getPassword() != password){
+        throw new WrongPassword;
+    } else {
+        RoomPrx roomPrx = serverPrx->FindRoom(this->name);
+        string roomName = roomPrx->getName();
+        for(vector<UserPrx>::iterator it = userList.begin(); it != userList.end(); ++it) {
+            (*it)->SendMessage(roomName, user, message);
+        }
     }
 }
 
 void RoomImpl::Destroy(const Ice::Current&){
-
+    /*RoomList roomList = serverPrx->getRooms();
+    roomList.erase(find(roomList.begin(), roomList.end(), serverPrx->FindRoom(name)));*/
 }
 
 void RoomImpl::LeaveRoom(const UserPrx& user,
                          const string& password,
                          const Ice::Current&){
-    userList.erase(find(userList.begin(), userList.end(),user));
+    if(user->getPassword() != password){
+        throw new WrongPassword;
+    } else {
+        userList.erase(find(userList.begin(), userList.end(),user));
+
+        cout << userList.size() << endl;
+
+        if(userList.size() == 0){
+            /*cout << "Delete" << endl;
+            serverPrx->FindRoom(name)->Destroy();*/
+        }
+    }
 }
 
